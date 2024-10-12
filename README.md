@@ -38,7 +38,7 @@ Este proyecto sigue la metodología Gitflow para el control de versiones. Gitflo
 - `hotfix/*`: Para corregir rápidamente errores en producción.
 
 <div align="center">
-  <img src="https://wac-cdn.atlassian.com/dam/jcr:cc0b526e-adb7-4d45-874e-9bcea9898b4a/04%20Hotfix%20branches.svg?cdnVersion=2312" alt="Banner" width="800" height="200">
+  <img src="https://wac-cdn.atlassian.com/dam/jcr:cc0b526e-adb7-4d45-874e-9bcea9898b4a/04%20Hotfix%20branches.svg?cdnVersion=2312" alt="Banner" width="1270" height="1080">
 </div>
 ## Estructura del Proyecto
 
