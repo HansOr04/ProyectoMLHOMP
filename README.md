@@ -142,7 +142,7 @@ Este proyecto está bajo la licencia MIT. Ver el archivo `LICENSE` para más det
 
 ## Contacto
 
-Tu Nombre - [hansalazar04@gmail.com]
+Repository Owner - [hansalazar04@gmail.com]
 
 Link del Proyecto: [https://github.com/HansOr04/ProyectoMLHOMP]
 
