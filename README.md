@@ -59,7 +59,7 @@ ProyectoMLHOMP/
 
 1. Clonar el repositorio:
    ```
-   git clone https://github.com/tu-usuario/ProyectoMLHOMP.git
+   git clone https://github.com/HansOr04/ProyectoMLHOMP.git
    cd ProyectoMLHOMP
    ```
 
