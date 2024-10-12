@@ -22,6 +22,24 @@ ProyectoMLHOMP es una aplicación web full-stack diseñada para facilitar la ren
 - **Autenticación**: ASP.NET Core Identity
 - **API**: RESTful API
 
+## Estructura de Gitflow
+
+Este proyecto sigue la metodología Gitflow para el control de versiones. Gitflow es un modelo de ramificación diseñado para colaboración y escalabilidad en proyectos de desarrollo de software.
+
+### Ramas Principales:
+
+- `main`: Contiene el código de producción.
+- `develop`: Rama de integración para características en desarrollo.
+
+### Ramas de Soporte:
+
+- `feature/*`: Para desarrollar nuevas características.
+- `release/*`: Preparación para una nueva versión de producción.
+- `hotfix/*`: Para corregir rápidamente errores en producción.
+
+<div align="center">
+  <img src="[https://i.imgur.com/glJwGRg.png](https://wac-cdn.atlassian.com/dam/jcr:cc0b526e-adb7-4d45-874e-9bcea9898b4a/04%20Hotfix%20branches.svg?cdnVersion=2312)" alt="Banner" width="800" height="200">
+</div>
 ## Estructura del Proyecto
 
 ```
