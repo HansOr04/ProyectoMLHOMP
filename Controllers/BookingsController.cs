@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProyectoMLHOMP.Models;
+using ProyectoMLHOMP.Data;
+
 
 namespace ProyectoMLHOMP.Controllers
 {

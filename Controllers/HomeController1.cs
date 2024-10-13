@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProyectoMLHOMP.Models;
 using System.Threading.Tasks;
+using ProyectoMLHOMP.Data;
+
 
 namespace ProyectoMLHOMP.Controllers
 {
