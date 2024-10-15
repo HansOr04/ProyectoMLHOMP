@@ -4,5 +4,10 @@
     {
         //holaasassaaf
         //asdfghjk
+        //id
+        //usuario
+        //fecha que se ingresa
+        //precio
+        //n huespedes
     }
 }
