@@ -17,7 +17,7 @@ namespace ProyectoMLHOMP.Models
         public string Description { get; set; }
 
         [Required]
-        [Column(TypeName = "float")] // Cambiado a float para compatibilidad con SQL Server
+        [Column(TypeName = "float")]
         public double PricePerNight { get; set; }
 
         [Required]
