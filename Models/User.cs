@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoMLHOMP.Models
 {
-    /// <summary>
-    /// Representa un usuario en el sistema.
-    /// </summary>
+    [Index(nameof(Email), IsUnique = true)]
+    [Index(nameof(Username), IsUnique = true)]
     public class User
     {
-        [Key]
         public int UserId { get; set; }
 
         [Required]
@@ -46,7 +45,6 @@ namespace ProyectoMLHOMP.Models
         [Required]
         public string PasswordHash { get; set; }
 
-        [Required]
         public DateTime RegistrationDate { get; set; }
 
         public bool IsHost { get; set; }
@@ -62,9 +60,17 @@ namespace ProyectoMLHOMP.Models
         public string ProfileImageUrl { get; set; }
 
         // Relaciones
-        public ICollection<Aparment> OwnedApartments { get; set; }
+        public ICollection<Apartment> OwnedApartments { get; set; }
         public ICollection<Review> WrittenReviews { get; set; }
         public ICollection<Booking> Bookings { get; set; }
+
+        public User()
+        {
+            RegistrationDate = DateTime.UtcNow;
+            OwnedApartments = new List<Apartment>();
+            WrittenReviews = new List<Review>();
+            Bookings = new List<Booking>();
+        }
 
         public string GetFullName()
         {

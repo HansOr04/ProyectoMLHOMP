@@ -5,12 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoMLHOMP.Models
 {
-    /// <summary>
-    /// Representa un apartamento en el sistema de alquiler.
-    /// </summary>
-    public class Aparment
+    public class Apartment
     {
-        [Key]
         public int ApartmentId { get; set; }
 
         [Required]
@@ -21,7 +17,7 @@ namespace ProyectoMLHOMP.Models
         public string Description { get; set; }
 
         [Required]
-        [Column(TypeName = "double(18,2)")]
+        [Column(TypeName = "float")] // Cambiado a float para compatibilidad con SQL Server
         public double PricePerNight { get; set; }
 
         [Required]
@@ -50,7 +46,6 @@ namespace ProyectoMLHOMP.Models
 
         public DateTime? UpdatedAt { get; set; }
 
-        // Relaciones
         [Required]
         public int OwnerUserId { get; set; }
 

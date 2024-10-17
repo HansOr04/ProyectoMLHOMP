@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoMLHOMP.Models
 {
-    /// <summary>
-    /// Representa una reserva de apartamento en el sistema.
-    /// </summary>
     public class Booking
     {
-        [Key]
         public int BookingId { get; set; }
 
         [Required]
@@ -23,14 +18,14 @@ namespace ProyectoMLHOMP.Models
         public int NumberOfGuests { get; set; }
 
         [Required]
-        [Column(TypeName = "double(18,2)")]
+        [Column(TypeName = "float")]
         public double TotalPrice { get; set; }
 
         [Required]
         public int ApartmentId { get; set; }
 
         [ForeignKey("ApartmentId")]
-        public Aparment Apartment { get; set; }
+        public Apartment Apartment { get; set; }
 
         [Required]
         public int GuestUserId { get; set; }
