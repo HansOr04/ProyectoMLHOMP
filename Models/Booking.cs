@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoMLHOMP.Models
 {
+    /// <summary>
+    /// Representa una reserva de apartamento en el sistema.
+    /// </summary>
     public class Booking
     {
         [Key]
-        public int Id { get; set; }
+        public int BookingId { get; set; }
 
         [Required]
         public DateTime StartDate { get; set; }
@@ -22,26 +26,23 @@ namespace ProyectoMLHOMP.Models
         [Column(TypeName = "double(18,2)")]
         public double TotalPrice { get; set; }
 
-        // Relación con el apartamento
         [Required]
         public int ApartmentId { get; set; }
 
         [ForeignKey("ApartmentId")]
         public Aparment Apartment { get; set; }
 
-        // Relación con el usuario (quien hace la reserva)
         [Required]
-        public int UserId { get; set; }  // Mantiene el nombre UserId para consistencia con el modelo User
+        public int GuestUserId { get; set; }
 
-        [ForeignKey("UserId")]
-        public User User { get; set; }
+        [ForeignKey("GuestUserId")]
+        public User Guest { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
 
-        // Constructor
         public Booking()
         {
             CreatedAt = DateTime.UtcNow;

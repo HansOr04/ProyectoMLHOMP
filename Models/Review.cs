@@ -1,54 +1,62 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ProyectoMLHOMP.Models
+namespace ProyectoMLHOMP.Models { 
+    /// <summary>
+/// Representa una reseña de un apartamento dejada por un usuario.
+/// </summary>
+public class Review
 {
-    public class Review
-    {
-        [Key]
-        public int ReviewId { get; set; }
+    [Key]
+    public int ReviewId { get; set; }
 
-        [Required]
-        public int ApartmentId { get; set; }
+    [Required]
+    public int ApartmentId { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
+    [ForeignKey("ApartmentId")]
+    public Aparment Apartment { get; set; }
 
-        [Required]
-        [Range(1, 5)]
-        public int OverallRating { get; set; }
+    [Required]
+    public int ReviewerUserId { get; set; }
 
-        [StringLength(100)]
-        public string Title { get; set; }
+    [ForeignKey("ReviewerUserId")]
+    public User Reviewer { get; set; }
 
-        [StringLength(1000)]
-        public string Content { get; set; }
+    [Required]
+    [Range(1, 5)]
+    public int OverallRating { get; set; }
 
-        [Range(1, 5)]
-        public int CleanlinessRating { get; set; }
+    [StringLength(100)]
+    public string Title { get; set; }
 
-        [Range(1, 5)]
-        public int CommunicationRating { get; set; }
+    [StringLength(1000)]
+    public string Content { get; set; }
 
-        [Range(1, 5)]
-        public int CheckInRating { get; set; }
+    [Range(1, 5)]
+    public int CleanlinessRating { get; set; }
 
-        [Range(1, 5)]
-        public int AccuracyRating { get; set; }
+    [Range(1, 5)]
+    public int CommunicationRating { get; set; }
 
-        [Range(1, 5)]
-        public int LocationRating { get; set; }
+    [Range(1, 5)]
+    public int CheckInRating { get; set; }
 
-        [Range(1, 5)]
-        public int ValueRating { get; set; }
+    [Range(1, 5)]
+    public int AccuracyRating { get; set; }
 
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
+    [Range(1, 5)]
+    public int LocationRating { get; set; }
 
-        public bool IsApproved { get; set; }
+    [Range(1, 5)]
+    public int ValueRating { get; set; }
 
-        // Relaciones
-        public Apartment Apartment { get; set; }
-        public User User { get; set; }
-    }
+    [Required]
+    public DateTime CreatedDate { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
+    public bool IsApproved { get; set; }
+}
 }

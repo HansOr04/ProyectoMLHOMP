@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoMLHOMP.Models
 {
+    /// <summary>
+    /// Representa un usuario en el sistema.
+    /// </summary>
     public class User
     {
         [Key]
@@ -42,6 +46,7 @@ namespace ProyectoMLHOMP.Models
         [Required]
         public string PasswordHash { get; set; }
 
+        [Required]
         public DateTime RegistrationDate { get; set; }
 
         public bool IsHost { get; set; }
@@ -57,11 +62,10 @@ namespace ProyectoMLHOMP.Models
         public string ProfileImageUrl { get; set; }
 
         // Relaciones
-        public ICollection<Aparment> Apartments { get; set; }
-        public ICollection<Review> Reviews { get; set; }
+        public ICollection<Aparment> OwnedApartments { get; set; }
+        public ICollection<Review> WrittenReviews { get; set; }
         public ICollection<Booking> Bookings { get; set; }
 
-        // Métodos útiles
         public string GetFullName()
         {
             return $"{FirstName} {LastName}";
