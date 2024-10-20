@@ -1,18 +1,20 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace ProyectoMLHOMP.Models
+﻿namespace ProyectoMLHOMP.Models
 {
     public class Review
     {
-        [Key]
         public int ReviewId { get; set; }
 
         [Required]
         public int ApartmentId { get; set; }
 
+        [ForeignKey("ApartmentId")]
+        public Apartment Apartment { get; set; }
+
         [Required]
-        public int UserId { get; set; }
+        public int ReviewerUserId { get; set; }
+
+        [ForeignKey("ReviewerUserId")]
+        public User Reviewer { get; set; }
 
         [Required]
         [Range(1, 5)]
@@ -42,13 +44,16 @@ namespace ProyectoMLHOMP.Models
         [Range(1, 5)]
         public int ValueRating { get; set; }
 
+        [Required]
         public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
 
         public bool IsApproved { get; set; }
 
-        // Relaciones
-        public Apartment Apartment { get; set; }
-        public User User { get; set; }
+        public Review()
+        {
+            CreatedDate = DateTime.UtcNow;
+        }
     }
 }
