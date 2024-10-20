@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -53,14 +52,14 @@ namespace ProyectoMLHOMP.Controllers
         }
 
         // POST: Apartments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ApartmentId,Title,Description,PricePerNight,Address,City,Country,Bedrooms,Bathrooms,MaxOccupancy,IsAvailable,CreatedAt,UpdatedAt,OwnerUserId")] Apartment apartment)
+        public async Task<IActionResult> Create([Bind("Title,Description,PricePerNight,Address,City,Country,Bedrooms,Bathrooms,MaxOccupancy,OwnerUserId")] Apartment apartment)
         {
             if (ModelState.IsValid)
             {
+                apartment.CreatedAt = DateTime.UtcNow;
+                apartment.IsAvailable = true;
                 _context.Add(apartment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -87,11 +86,9 @@ namespace ProyectoMLHOMP.Controllers
         }
 
         // POST: Apartments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ApartmentId,Title,Description,PricePerNight,Address,City,Country,Bedrooms,Bathrooms,MaxOccupancy,IsAvailable,CreatedAt,UpdatedAt,OwnerUserId")] Apartment apartment)
+        public async Task<IActionResult> Edit(int id, [Bind("ApartmentId,Title,Description,PricePerNight,Address,City,Country,Bedrooms,Bathrooms,MaxOccupancy,OwnerUserId")] Apartment apartment)
         {
             if (id != apartment.ApartmentId)
             {
@@ -102,6 +99,8 @@ namespace ProyectoMLHOMP.Controllers
             {
                 try
                 {
+                    apartment.UpdatedAt = DateTime.UtcNow;
+                    apartment.IsAvailable = true;
                     _context.Update(apartment);
                     await _context.SaveChangesAsync();
                 }
