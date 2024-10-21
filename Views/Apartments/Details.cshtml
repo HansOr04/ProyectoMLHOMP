@@ -1,96 +1,274 @@
 ﻿@model ProyectoMLHOMP.Models.Apartment
-
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Apartment Details";
 }
 
-<h1>Details</h1>
+<style>
+    body {
+        background-color: #f5f5f5;
+        font-family: Arial, sans-serif;
+    }
 
-<div>
-    <h4>Apartment</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PricePerNight)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PricePerNight)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.City)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.City)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Country)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Country)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Bedrooms)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Bedrooms)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Bathrooms)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Bathrooms)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaxOccupancy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaxOccupancy)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsAvailable)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsAvailable)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Owner)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Owner.Email)
-        </dd>
-    </dl>
+    .container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        background-color: white;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        padding: 2rem;
+    }
+
+    .details-booking {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+
+    .details, .booking-form {
+        width: 48%;
+    }
+
+    h1, h2, h4 {
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    hr {
+        border: none;
+        border-top: 2px solid #eee;
+        margin: 1rem 0;
+    }
+
+    .row {
+        margin-bottom: 0.5rem;
+    }
+
+    dt {
+        font-weight: bold;
+        color: #555;
+    }
+
+    dd {
+        margin-left: 0;
+        color: #333;
+    }
+
+    .square-form {
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        padding: 1rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .btn {
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    .actions {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+        .actions a {
+            color: #007bff;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+    .review {
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .review-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .review-rating {
+        font-size: 1.2rem;
+        color: #ffc107;
+    }
+
+    .review-info {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .review-content {
+        margin-bottom: 0.5rem;
+    }
+
+    .review-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .review-actions {
+        margin-top: 0.5rem;
+    }
+
+        .review-actions a {
+            color: #007bff;
+            text-decoration: none;
+            margin-right: 0.5rem;
+        }
+</style>
+
+<div class="container">
+    <div class="details-booking">
+        <div class="details">
+            <h1>@Model.Title</h1>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-4">Description</dt>
+                <dd class="col-sm-8">@Model.Description</dd>
+
+                <dt class="col-sm-4">Price per Night</dt>
+                <dd class="col-sm-8">@Model.PricePerNight.ToString("C")</dd>
+
+                <dt class="col-sm-4">Address</dt>
+                <dd class="col-sm-8">@Model.Address</dd>
+
+                <dt class="col-sm-4">City</dt>
+                <dd class="col-sm-8">@Model.City</dd>
+
+                <dt class="col-sm-4">Country</dt>
+                <dd class="col-sm-8">@Model.Country</dd>
+
+                <dt class="col-sm-4">Bedrooms</dt>
+                <dd class="col-sm-8">@Model.Bedrooms</dd>
+
+                <dt class="col-sm-4">Bathrooms</dt>
+                <dd class="col-sm-8">@Model.Bathrooms</dd>
+
+                <dt class="col-sm-4">Max Occupancy</dt>
+                <dd class="col-sm-8">@Model.MaxOccupancy guests</dd>
+
+                <dt class="col-sm-4">Availability</dt>
+                <dd class="col-sm-8">@(Model.IsAvailable ? "Available" : "Not Available")</dd>
+
+                <dt class="col-sm-4">Host</dt>
+                <dd class="col-sm-8">@Model.Owner.Email</dd>
+            </dl>
+        </div>
+
+        <div class="booking-form">
+            <h4>Make a Booking</h4>
+            <div class="square-form">
+                <form asp-controller="Booking" asp-action="Create">
+                    <input type="hidden" name="ApartmentId" value="@Model.ApartmentId" />
+
+                    <div class="form-group">
+                        <label for="StartDate">Check-in Date</label>
+                        <input type="date" name="StartDate" class="form-control" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="EndDate">Check-out Date</label>
+                        <input type="date" name="EndDate" class="form-control" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="NumberOfGuests">Number of Guests</label>
+                        <input type="number" name="NumberOfGuests" class="form-control" required min="1" max="@Model.MaxOccupancy" />
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Book Now" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="reviews">
+        <h2>Reviews</h2>
+        <a asp-controller="Review" asp-action="Create" asp-route-id="@Model.ApartmentId" class="btn btn-secondary">Write a Review</a>
+
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            @foreach (var item in Model.Reviews)
+            {
+                <div class="review">
+                    <div class="review-header">
+                        <span class="review-title">@item.Title</span>
+                        <span class="review-rating">@item.OverallRating/5 ★</span>
+                    </div>
+                    <div class="review-info">
+                        By @item.Reviewer.Email on @item.CreatedDate.ToString("MMM dd, yyyy")
+                    </div>
+                    <div class="review-content">
+                        @item.Content
+                    </div>
+                    <div class="review-details">
+                        <span>Cleanliness: @item.CleanlinessRating/5</span>
+                        <span>Communication: @item.CommunicationRating/5</span>
+                        <span>Check-In: @item.CheckInRating/5</span>
+                        <span>Accuracy: @item.AccuracyRating/5</span>
+                        <span>Location: @item.LocationRating/5</span>
+                        <span>Value: @item.ValueRating/5</span>
+                    </div>
+                    <div class="review-actions">
+                        <a asp-controller="Review" asp-action="Edit" asp-route-id="@item.ReviewId">Edit</a>
+                        <a asp-controller="Review" asp-action="Details" asp-route-id="@item.ReviewId">Details</a>
+                        <a asp-controller="Review" asp-action="Delete" asp-route-id="@item.ReviewId">Delete</a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No reviews yet for this apartment.</p>
+        }
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.ApartmentId">Edit</a> |
+
+<div class="actions">
+    <a asp-action="Edit" asp-route-id="@Model.ApartmentId">Edit Apartment</a> |
     <a asp-action="Index">Back to List</a>
 </div>
