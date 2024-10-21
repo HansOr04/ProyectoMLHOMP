@@ -1,9 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ProyectoMLHOMP.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddDbContext<DataProyecto>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DataProyecto") ?? throw new InvalidOperationException("Connection string 'DataProyecto' not found.")));
+
+// Add HttpClient services
+builder.Services.AddHttpClient();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
