@@ -1,107 +1,118 @@
 ﻿@model ProyectoMLHOMP.Models.User
 
 @{
-    ViewData["Title"] = "Registro de Usuario";
+    ViewData["Title"] = "Registro";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Registro de Usuario</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Register" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-<hr />
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Register" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">Nombre</label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">Apellido</label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
 
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label">Nombre</label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
+                        <div class="mb-3">
+                            <label asp-for="DateOfBirth" class="form-label">Fecha de Nacimiento</label>
+                            <input asp-for="DateOfBirth" class="form-control" type="date" />
+                            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label">Nombre de Usuario</label>
+                            <input asp-for="Username" class="form-control" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Contraseña</label>
+                            <input asp-for="Password" class="form-control" type="password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">Teléfono</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">Dirección</label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="City" class="form-label">Ciudad</label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Country" class="form-label">País</label>
+                                <input asp-for="Country" class="form-control" />
+                                <span asp-validation-for="Country" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Biography" class="form-label">Biografía</label>
+                            <textarea asp-for="Biography" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Biography" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Languages" class="form-label">Idiomas</label>
+                            <input asp-for="Languages" class="form-control" />
+                            <span asp-validation-for="Languages" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="profileImage" class="form-label">Foto de Perfil</label>
+                            <input type="file" name="profileImage" id="profileImage" class="form-control" accept="image/*" />
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Registrarse</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label">Apellido</label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="DateOfBirth" class="control-label">Fecha de Nacimiento</label>
-                <input asp-for="DateOfBirth" class="form-control" type="date" />
-                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Email" class="control-label">Correo Electrónico</label>
-                <input asp-for="Email" class="form-control" type="email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label">Número de Teléfono</label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Address" class="control-label">Dirección</label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="City" class="control-label">Ciudad</label>
-                <input asp-for="City" class="form-control" />
-                <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Country" class="control-label">País</label>
-                <input asp-for="Country" class="form-control" />
-                <span asp-validation-for="Country" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Username" class="control-label">Nombre de Usuario</label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="PasswordHash" class="control-label">Contraseña</label>
-                <input asp-for="PasswordHash" class="form-control" type="password" />
-                <span asp-validation-for="PasswordHash" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Biography" class="control-label">Biografía</label>
-                <textarea asp-for="Biography" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Biography" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Languages" class="control-label">Idiomas</label>
-                <input asp-for="Languages" class="form-control" />
-                <span asp-validation-for="Languages" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label for="ProfileImage" class="control-label">Imagen de Perfil</label>
-                <input type="file" id="ProfileImage" name="ProfileImage" class="form-control-file" />
-            </div>
-
-            <div class="form-group">
-                <input type="submit" value="Registrar" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Volver a la lista</a>
-</div>
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // Establecer la fecha máxima como hace 18 años
+            var today = new Date();
+            var maxDate = new Date();
+                maxDate.setFullYear(today.getFullYear() - 18);
+                    $('#DateOfBirth').attr('max', maxDate.toISOString().split('T')[0]);
+                });
+    </script>
 }

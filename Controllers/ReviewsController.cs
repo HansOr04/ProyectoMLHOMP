@@ -6,15 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProyectoMLHOMP.Models;
-using ProyectoMLHOMP.Data;
 
 namespace ProyectoMLHOMP.Controllers
 {
     public class ReviewsController : Controller
     {
-        private readonly DataProyecto _context;
+        private readonly ProyectoContext _context;
 
-        public ReviewsController(DataProyecto context)
+        public ReviewsController(ProyectoContext context)
         {
             _context = context;
         }
@@ -22,8 +21,8 @@ namespace ProyectoMLHOMP.Controllers
         // GET: Reviews
         public async Task<IActionResult> Index()
         {
-            var dataProyecto = _context.Review.Include(r => r.Apartment).Include(r => r.Reviewer);
-            return View(await dataProyecto.ToListAsync());
+            var proyectoContext = _context.Review.Include(r => r.Apartment).Include(r => r.Reviewer);
+            return View(await proyectoContext.ToListAsync());
         }
 
         // GET: Reviews/Details/5
@@ -50,7 +49,7 @@ namespace ProyectoMLHOMP.Controllers
         public IActionResult Create()
         {
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address");
-            ViewData["ReviewerUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email");
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address");
             return View();
         }
 
@@ -59,7 +58,7 @@ namespace ProyectoMLHOMP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ReviewId,ApartmentId,ReviewerUserId,OverallRating,Title,Content,CleanlinessRating,CommunicationRating,CheckInRating,AccuracyRating,LocationRating,ValueRating,CreatedDate,UpdatedDate,IsApproved")] Review review)
+        public async Task<IActionResult> Create([Bind("ReviewId,ApartmentId,UserId,OverallRating,Title,Content,CleanlinessRating,CommunicationRating,CheckInRating,AccuracyRating,LocationRating,ValueRating,CreatedDate,UpdatedDate,IsApproved")] Review review)
         {
             if (ModelState.IsValid)
             {
@@ -68,7 +67,7 @@ namespace ProyectoMLHOMP.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address", review.ApartmentId);
-            ViewData["ReviewerUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email", review.ReviewerUserId);
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address", review.UserId);
             return View(review);
         }
 
@@ -86,7 +85,7 @@ namespace ProyectoMLHOMP.Controllers
                 return NotFound();
             }
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address", review.ApartmentId);
-            ViewData["ReviewerUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email", review.ReviewerUserId);
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address", review.UserId);
             return View(review);
         }
 
@@ -95,7 +94,7 @@ namespace ProyectoMLHOMP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ReviewId,ApartmentId,ReviewerUserId,OverallRating,Title,Content,CleanlinessRating,CommunicationRating,CheckInRating,AccuracyRating,LocationRating,ValueRating,CreatedDate,UpdatedDate,IsApproved")] Review review)
+        public async Task<IActionResult> Edit(int id, [Bind("ReviewId,ApartmentId,UserId,OverallRating,Title,Content,CleanlinessRating,CommunicationRating,CheckInRating,AccuracyRating,LocationRating,ValueRating,CreatedDate,UpdatedDate,IsApproved")] Review review)
         {
             if (id != review.ReviewId)
             {
@@ -123,7 +122,7 @@ namespace ProyectoMLHOMP.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address", review.ApartmentId);
-            ViewData["ReviewerUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email", review.ReviewerUserId);
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address", review.UserId);
             return View(review);
         }
 

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ProyectoMLHOMP.Models
 {
@@ -11,68 +11,84 @@ namespace ProyectoMLHOMP.Models
     public class User
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "El nombre es requerido")]
         [StringLength(50)]
-        public string FirstName { get; set; } = "";
+        public string FirstName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es requerido")]
         [StringLength(50)]
-        public string LastName { get; set; } = "";
+        public string LastName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La fecha de nacimiento es requerida")]
-        [DataType(DataType.Date)]
-        public DateTime DateOfBirth { get; set; } = DateTime.UtcNow;
+        public DateTime DateOfBirth { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "La dirección es requerida")]
         [StringLength(100)]
-        public string Address { get; set; } = "";
+        public string Address { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "La ciudad es requerida")]
         [StringLength(50)]
-        public string City { get; set; } = "";
+        public string City { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "El país es requerido")]
         [StringLength(50)]
-        public string Country { get; set; } = "";
+        public string Country { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El email es requerido")]
         [EmailAddress(ErrorMessage = "Email inválido")]
-        public string Email { get; set; } = "";
+        public string Email { get; set; } = string.Empty;
 
-        [Required]
-        [Phone(ErrorMessage = "Número de teléfono inválido")]
-        public string PhoneNumber { get; set; } = "";
+        [Required(ErrorMessage = "El teléfono es requerido")]
+        public string PhoneNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El nombre de usuario es requerido")]
-        public string Username { get; set; } = "";
+        public string Username { get; set; } = string.Empty;
 
+        public string PasswordHash { get; set; } = string.Empty;
+
+        [NotMapped]
         [Required(ErrorMessage = "La contraseña es requerida")]
-        public string PasswordHash { get; set; } = "";
+        [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
+        public string Password { get; set; } = string.Empty;
 
-        public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
+        public DateTime RegistrationDate { get; set; }
 
-        public bool IsHost { get; set; } = false;
+        public bool IsHost { get; set; }
 
-        public bool IsVerified { get; set; } = false;
+        public bool IsVerified { get; set; }
 
         [Required]
         [StringLength(500)]
-        public string Biography { get; set; } = "";
+        public string Biography { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        public string Languages { get; set; } = "";
+        public string Languages { get; set; } = string.Empty;
 
-        [Required]
         public string ProfileImageUrl { get; set; } = "/images/default-profile.jpg";
 
-        // Relaciones
-        public ICollection<Apartment> OwnedApartments { get; set; } = new List<Apartment>();
-        public ICollection<Review> WrittenReviews { get; set; } = new List<Review>();
-        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        // Navegación
+        public virtual ICollection<Apartment>? ApartmentsOwned { get; set; }
+        public virtual ICollection<Booking>? BookingsAsGuest { get; set; }
+        public virtual ICollection<Review>? ReviewsWritten { get; set; }
 
         public string GetFullName() => $"{FirstName} {LastName}";
+
+        public bool VerifyPassword(string password)
+        {
+            return HashPassword(password) == this.PasswordHash;
+        }
+
+        public static string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            }
+        }
     }
 }

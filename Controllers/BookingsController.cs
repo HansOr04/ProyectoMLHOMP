@@ -6,15 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProyectoMLHOMP.Models;
-using ProyectoMLHOMP.Data;
 
 namespace ProyectoMLHOMP.Controllers
 {
     public class BookingsController : Controller
     {
-        private readonly DataProyecto _context;
+        private readonly ProyectoContext _context;
 
-        public BookingsController(DataProyecto context)
+        public BookingsController(ProyectoContext context)
         {
             _context = context;
         }
@@ -22,8 +21,8 @@ namespace ProyectoMLHOMP.Controllers
         // GET: Bookings
         public async Task<IActionResult> Index()
         {
-            var dataProyecto = _context.Booking.Include(b => b.Apartment).Include(b => b.Guest);
-            return View(await dataProyecto.ToListAsync());
+            var proyectoContext = _context.Booking.Include(b => b.Apartment).Include(b => b.Guest);
+            return View(await proyectoContext.ToListAsync());
         }
 
         // GET: Bookings/Details/5
@@ -50,7 +49,7 @@ namespace ProyectoMLHOMP.Controllers
         public IActionResult Create()
         {
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address");
-            ViewData["GuestUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email");
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address");
             return View();
         }
 
@@ -59,7 +58,7 @@ namespace ProyectoMLHOMP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,StartDate,EndDate,NumberOfGuests,TotalPrice,ApartmentId,GuestUserId,CreatedAt,UpdatedAt")] Booking booking)
+        public async Task<IActionResult> Create([Bind("BookingId,StartDate,EndDate,NumberOfGuests,TotalPrice,ApartmentId,UserId,CreatedAt,UpdatedAt")] Booking booking)
         {
             if (ModelState.IsValid)
             {
@@ -68,7 +67,7 @@ namespace ProyectoMLHOMP.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address", booking.ApartmentId);
-            ViewData["GuestUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email", booking.GuestUserId);
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address", booking.UserId);
             return View(booking);
         }
 
@@ -86,7 +85,7 @@ namespace ProyectoMLHOMP.Controllers
                 return NotFound();
             }
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address", booking.ApartmentId);
-            ViewData["GuestUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email", booking.GuestUserId);
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address", booking.UserId);
             return View(booking);
         }
 
@@ -95,7 +94,7 @@ namespace ProyectoMLHOMP.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,StartDate,EndDate,NumberOfGuests,TotalPrice,ApartmentId,GuestUserId,CreatedAt,UpdatedAt")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,StartDate,EndDate,NumberOfGuests,TotalPrice,ApartmentId,UserId,CreatedAt,UpdatedAt")] Booking booking)
         {
             if (id != booking.BookingId)
             {
@@ -123,7 +122,7 @@ namespace ProyectoMLHOMP.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ApartmentId"] = new SelectList(_context.Apartment, "ApartmentId", "Address", booking.ApartmentId);
-            ViewData["GuestUserId"] = new SelectList(_context.Set<User>(), "UserId", "Email", booking.GuestUserId);
+            ViewData["UserId"] = new SelectList(_context.User, "UserId", "Address", booking.UserId);
             return View(booking);
         }
 

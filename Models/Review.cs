@@ -1,34 +1,30 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoMLHOMP.Models
 {
     public class Review
     {
+        [Key]
         public int ReviewId { get; set; }
 
         [Required]
         public int ApartmentId { get; set; }
 
-        [ForeignKey("ApartmentId")]
-        public Apartment Apartment { get; set; }
-
         [Required]
-        public int ReviewerUserId { get; set; }
-
-        [ForeignKey("ReviewerUserId")]
-        public User Reviewer { get; set; }
+        public int UserId { get; set; }
 
         [Required]
         [Range(1, 5)]
         public int OverallRating { get; set; }
 
         [StringLength(100)]
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
 
         [StringLength(1000)]
-        public string Content { get; set; }
+        public string Content { get; set; } = "";
 
         [Range(1, 5)]
         public int CleanlinessRating { get; set; }
@@ -54,6 +50,15 @@ namespace ProyectoMLHOMP.Models
         public DateTime? UpdatedDate { get; set; }
 
         public bool IsApproved { get; set; }
+
+        // Relaciones
+        [ForeignKey("ApartmentId")]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public virtual Apartment Apartment { get; set; } = null!;
+
+        [ForeignKey("UserId")]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public virtual User Reviewer { get; set; } = null!;
 
         public Review()
         {

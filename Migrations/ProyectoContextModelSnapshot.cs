@@ -4,14 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ProyectoMLHOMP.Data;
 
 #nullable disable
 
 namespace ProyectoMLHOMP.Migrations
 {
-    [DbContext(typeof(DataProyecto))]
-    partial class DataProyectoModelSnapshot : ModelSnapshot
+    [DbContext(typeof(ProyectoContext))]
+    partial class ProyectoContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -61,9 +60,6 @@ namespace ProyectoMLHOMP.Migrations
                     b.Property<int>("MaxOccupancy")
                         .HasColumnType("int");
 
-                    b.Property<int>("OwnerUserId")
-                        .HasColumnType("int");
-
                     b.Property<double>("PricePerNight")
                         .HasColumnType("float");
 
@@ -75,9 +71,12 @@ namespace ProyectoMLHOMP.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("ApartmentId");
 
-                    b.HasIndex("OwnerUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Apartment");
                 });
@@ -99,9 +98,6 @@ namespace ProyectoMLHOMP.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GuestUserId")
-                        .HasColumnType("int");
-
                     b.Property<int>("NumberOfGuests")
                         .HasColumnType("int");
 
@@ -114,11 +110,14 @@ namespace ProyectoMLHOMP.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("BookingId");
 
                     b.HasIndex("ApartmentId");
 
-                    b.HasIndex("GuestUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Booking");
                 });
@@ -163,9 +162,6 @@ namespace ProyectoMLHOMP.Migrations
                     b.Property<int>("OverallRating")
                         .HasColumnType("int");
 
-                    b.Property<int>("ReviewerUserId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -174,6 +170,9 @@ namespace ProyectoMLHOMP.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ValueRating")
                         .HasColumnType("int");
 
@@ -181,7 +180,7 @@ namespace ProyectoMLHOMP.Migrations
 
                     b.HasIndex("ApartmentId");
 
-                    b.HasIndex("ReviewerUserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Review");
                 });
@@ -275,8 +274,8 @@ namespace ProyectoMLHOMP.Migrations
             modelBuilder.Entity("ProyectoMLHOMP.Models.Apartment", b =>
                 {
                     b.HasOne("ProyectoMLHOMP.Models.User", "Owner")
-                        .WithMany("OwnedApartments")
-                        .HasForeignKey("OwnerUserId")
+                        .WithMany("ApartmentsOwned")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -292,8 +291,8 @@ namespace ProyectoMLHOMP.Migrations
                         .IsRequired();
 
                     b.HasOne("ProyectoMLHOMP.Models.User", "Guest")
-                        .WithMany("Bookings")
-                        .HasForeignKey("GuestUserId")
+                        .WithMany("BookingsAsGuest")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -311,8 +310,8 @@ namespace ProyectoMLHOMP.Migrations
                         .IsRequired();
 
                     b.HasOne("ProyectoMLHOMP.Models.User", "Reviewer")
-                        .WithMany("WrittenReviews")
-                        .HasForeignKey("ReviewerUserId")
+                        .WithMany("ReviewsWritten")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -330,11 +329,11 @@ namespace ProyectoMLHOMP.Migrations
 
             modelBuilder.Entity("ProyectoMLHOMP.Models.User", b =>
                 {
-                    b.Navigation("Bookings");
+                    b.Navigation("ApartmentsOwned");
 
-                    b.Navigation("OwnedApartments");
+                    b.Navigation("BookingsAsGuest");
 
-                    b.Navigation("WrittenReviews");
+                    b.Navigation("ReviewsWritten");
                 });
 #pragma warning restore 612, 618
         }

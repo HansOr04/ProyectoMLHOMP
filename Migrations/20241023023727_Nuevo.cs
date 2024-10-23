@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProyectoMLHOMP.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateRelationshipsAndIndexes : Migration
+    public partial class Nuevo : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,14 +57,14 @@ namespace ProyectoMLHOMP.Migrations
                     IsAvailable = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    OwnerUserId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Apartment", x => x.ApartmentId);
                     table.ForeignKey(
-                        name: "FK_Apartment_User_OwnerUserId",
-                        column: x => x.OwnerUserId,
+                        name: "FK_Apartment_User_UserId",
+                        column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
@@ -81,7 +81,7 @@ namespace ProyectoMLHOMP.Migrations
                     NumberOfGuests = table.Column<int>(type: "int", nullable: false),
                     TotalPrice = table.Column<double>(type: "float", nullable: false),
                     ApartmentId = table.Column<int>(type: "int", nullable: false),
-                    GuestUserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -95,8 +95,8 @@ namespace ProyectoMLHOMP.Migrations
                         principalColumn: "ApartmentId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Booking_User_GuestUserId",
-                        column: x => x.GuestUserId,
+                        name: "FK_Booking_User_UserId",
+                        column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
@@ -109,7 +109,7 @@ namespace ProyectoMLHOMP.Migrations
                     ReviewId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ApartmentId = table.Column<int>(type: "int", nullable: false),
-                    ReviewerUserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     OverallRating = table.Column<int>(type: "int", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
@@ -133,17 +133,17 @@ namespace ProyectoMLHOMP.Migrations
                         principalColumn: "ApartmentId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Review_User_ReviewerUserId",
-                        column: x => x.ReviewerUserId,
+                        name: "FK_Review_User_UserId",
+                        column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Apartment_OwnerUserId",
+                name: "IX_Apartment_UserId",
                 table: "Apartment",
-                column: "OwnerUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Booking_ApartmentId",
@@ -151,9 +151,9 @@ namespace ProyectoMLHOMP.Migrations
                 column: "ApartmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Booking_GuestUserId",
+                name: "IX_Booking_UserId",
                 table: "Booking",
-                column: "GuestUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Review_ApartmentId",
@@ -161,9 +161,9 @@ namespace ProyectoMLHOMP.Migrations
                 column: "ApartmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Review_ReviewerUserId",
+                name: "IX_Review_UserId",
                 table: "Review",
-                column: "ReviewerUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_Email",

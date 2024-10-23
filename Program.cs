@@ -1,25 +1,50 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using ProyectoMLHOMP.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using ProyectoMLHOMP.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<DataProyecto>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DataProyecto") ?? throw new InvalidOperationException("Connection string 'DataProyecto' not found.")));
+// Add services to the container
+var connectionString = builder.Configuration.GetConnectionString("ProyectoContext");
+builder.Services.AddDbContext<ProyectoContext>(options =>
+    options.UseSqlServer(connectionString ?? throw new InvalidOperationException(
+        "Connection string 'ProyectoContext' not found.")));
 
-// Add HttpClient services
-builder.Services.AddHttpClient();
+// Configuración de la autenticación por cookies
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Users/Login";
+        options.LogoutPath = "/Users/Logout";
+        options.AccessDeniedPath = "/Users/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    });
 
-// Add services to the container.
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllersWithViews();
+
+// Configure session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -28,7 +53,26 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
+
+// Asegurarse de que la base de datos existe y está actualizada
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ProyectoContext>();
+        context.Database.EnsureCreated();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while ensuring the database exists.");
+    }
+}
 
 app.MapControllerRoute(
     name: "default",

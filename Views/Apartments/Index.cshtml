@@ -1,51 +1,58 @@
-﻿@model IEnumerable<ProyectoMLHOMP.Models.Apartment>
+﻿@using System.Security.Claims
+@using ProyectoMLHOMP.Models
+@model IEnumerable<ProyectoMLHOMP.Models.Apartment>
 
 @{
-    ViewData["Title"] = "Apartamentos Disponibles";
+    ViewData["Title"] = "Departamentos";
+    var isHost = (bool)ViewData["IsHost"];
+    var currentUserId = (int)ViewData["CurrentUserId"];
 }
 
-<div class="container">
-    <h1 class="my-4">@ViewData["Title"]</h1>
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary mb-3">
-            <i class="fas fa-plus"></i> Crear Nuevo Apartamento
-        </a>
-    </p>
+    @if (isHost)
+    {
+        <p>
+            <a asp-action="Create" class="btn btn-primary">Crear Nuevo Departamento</a>
+        </p>
+    }
 
     <div class="row">
         @foreach (var item in Model)
         {
             <div class="col-md-4 mb-4">
-                <div class="card h-100 apartment-card">
-                    <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="Imagen del apartamento">
+                <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">@item.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@item.City, @item.Country</h6>
+                        <p class="card-text">@item.Description</p>
                         <p class="card-text">
-                            <i class="fas fa-map-marker-alt"></i> @item.City, @item.Country
+                            <small class="text-muted">
+                                @item.Bedrooms habitaciones | @item.Bathrooms baños
+                                <br>
+                                Máximo @item.MaxOccupancy personas
+                            </small>
                         </p>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><i class="fas fa-bed"></i> @item.Bedrooms Habitaciones</li>
-                            <li class="list-group-item"><i class="fas fa-bath"></i> @item.Bathrooms Baños</li>
-                            <li class="list-group-item"><i class="fas fa-users"></i> Máx. @item.MaxOccupancy personas</li>
-                        </ul>
-                        <p class="card-text mt-2">
-                            <strong><i class="fas fa-dollar-sign"></i> @item.PricePerNight</strong> / noche
-                        </p>
-                    </div>
-                    <div class="card-footer">
-                        <a asp-action="Details" asp-route-id="@item.ApartmentId" class="btn btn-info btn-sm">
-                            <i class="fas fa-info-circle"></i> Detalles
-                        </a>
-                        <a asp-action="Edit" asp-route-id="@item.ApartmentId" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                        <a asp-action="Delete" asp-route-id="@item.ApartmentId" class="btn btn-danger btn-sm">
-                            <i class="fas fa-trash"></i> Eliminar
-                        </a>
+                        <p class="card-text"><strong>$@item.PricePerNight por noche</strong></p>
+
+                        <div class="btn-group">
+                            <a asp-action="Details" asp-route-id="@item.ApartmentId" class="btn btn-info">Detalles</a>
+                            @if (isHost && item.UserId == currentUserId)
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.ApartmentId" class="btn btn-warning">Editar</a>
+                                <a asp-action="Delete" asp-route-id="@item.ApartmentId" class="btn btn-danger">Eliminar</a>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
         }
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

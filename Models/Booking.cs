@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProyectoMLHOMP.Models
 {
     public class Booking
     {
+        [Key]
         public int BookingId { get; set; }
 
         [Required]
@@ -24,14 +26,17 @@ namespace ProyectoMLHOMP.Models
         [Required]
         public int ApartmentId { get; set; }
 
-        [ForeignKey("ApartmentId")]
-        public Apartment Apartment { get; set; }
-
         [Required]
-        public int GuestUserId { get; set; }
+        public int UserId { get; set; }
 
-        [ForeignKey("GuestUserId")]
-        public User Guest { get; set; }
+        // Relaciones
+        [ForeignKey("ApartmentId")]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public virtual Apartment Apartment { get; set; } = null!;
+
+        [ForeignKey("UserId")]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public virtual User Guest { get; set; } = null!;
 
         [Required]
         public DateTime CreatedAt { get; set; }
