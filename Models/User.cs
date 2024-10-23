@@ -1,4 +1,7 @@
-﻿namespace ProyectoMLHOMP.Models
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+namespace ProyectoMLHOMP.Models
 {
     [Index(nameof(Email), IsUnique = true)]
     [Index(nameof(Username), IsUnique = true)]

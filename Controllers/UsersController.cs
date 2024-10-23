@@ -10,6 +10,11 @@ using ProyectoMLHOMP.Data;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using System.Runtime.Intrinsics.X86;
+using System.Security.Claims;
 
 namespace ProyectoMLHOMP.Controllers
 {
@@ -122,8 +127,11 @@ namespace ProyectoMLHOMP.Controllers
             return View(user);
         }
 
-        // GET: Users/Login
-        public IActionResult Login()
+        
+
+
+// GET: Users/Login
+public IActionResult Login()
         {
             return View();
         }
@@ -131,37 +139,64 @@ namespace ProyectoMLHOMP.Controllers
         // POST: Users/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            try
+            if (ModelState.IsValid) // Verifica que el formulario sea válido
             {
-                var user = await _context.User.FirstOrDefaultAsync(u => u.Username == username);
-
-                if (user != null && VerifyPassword(password, user.PasswordHash))
+                try
                 {
-                    HttpContext.Session.SetInt32("UserId", user.UserId);
-                    _logger.LogInformation($"User logged in successfully: {username}");
-                    return RedirectToAction("Index", "Apartments");
+                    // Busca al usuario por correo electrónico
+                    var user = await _context.User.FirstOrDefaultAsync(u => u.Email == model.Email);
+
+                    if (user != null && VerifyPassword(model.Password, user.PasswordHash)) // Verifica la contraseña
+                    {
+                        // Crear los claims (información del usuario para la autenticación)
+                        var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+                };
+
+                        // Crear la identidad del usuario con los claims
+                        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var principal = new ClaimsPrincipal(identity);
+
+                        // Iniciar sesión con cookies
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+                        _logger.LogInformation($"User logged in successfully: {user.Username}");
+
+                        // Redirigir al usuario a la página principal
+                        return RedirectToAction("Index", "Apartments");
+                    }
+
+                    // Si la contraseña o el usuario no son correctos
+                    _logger.LogWarning($"Failed login attempt for email: {model.Email}");
+                    ModelState.AddModelError("", "Correo electrónico o contraseña incorrectos.");
                 }
-
-                _logger.LogWarning($"Failed login attempt for username: {username}");
-                ModelState.AddModelError("", "Usuario o contraseña incorrectos.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error during login process for username: {username}");
-                ModelState.AddModelError("", "Ocurrió un error durante el inicio de sesión. Por favor, inténtalo de nuevo.");
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Error during login process for email: {model.Email}");
+                    ModelState.AddModelError("", "Ocurrió un error durante el inicio de sesión. Por favor, inténtalo de nuevo.");
+                }
             }
 
-            return View();
+            return View(model); // Si algo falla, devuelve la vista con el modelo
         }
 
         // GET: Users/Logout
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Clear();
+            // Eliminar la cookie de autenticación
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            _logger.LogInformation("User logged out successfully.");
+
+            // Redirigir al usuario a la página de inicio o página de login
             return RedirectToAction("Index", "Home");
         }
+
 
         // GET: Users/Edit/5
         public async Task<IActionResult> Edit(int? id)

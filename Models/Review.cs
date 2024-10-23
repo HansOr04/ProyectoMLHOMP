@@ -1,4 +1,7 @@
-﻿namespace ProyectoMLHOMP.Models
+﻿using System.ComponentModel.DataAnnotations;         
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ProyectoMLHOMP.Models
 {
     public class Review
     {
