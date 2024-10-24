@@ -1,8 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using ProyectoMLHOMP.Models;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
-
+using System.ComponentModel.DataAnnotations;
 namespace ProyectoMLHOMP.Models
 {
     public class Review
@@ -10,59 +8,58 @@ namespace ProyectoMLHOMP.Models
         [Key]
         public int ReviewId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El ID del apartamento es requerido")]
         public int ApartmentId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El ID del usuario es requerido")]
         public int UserId { get; set; }
 
-        [Required]
-        [Range(1, 5)]
+        [Required(ErrorMessage = "El título es requerido")]
+        [StringLength(100, ErrorMessage = "El título no puede exceder los 100 caracteres")]
+        public string Title { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El contenido es requerido")]
+        [StringLength(1000, ErrorMessage = "El contenido no puede exceder los 1000 caracteres")]
+        public string Content { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La calificación general es requerida")]
+        [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
         public int OverallRating { get; set; }
 
-        [StringLength(100)]
-        public string Title { get; set; } = "";
-
-        [StringLength(1000)]
-        public string Content { get; set; } = "";
-
-        [Range(1, 5)]
+        [Required(ErrorMessage = "La calificación de limpieza es requerida")]
+        [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
         public int CleanlinessRating { get; set; }
 
-        [Range(1, 5)]
+        [Required(ErrorMessage = "La calificación de comunicación es requerida")]
+        [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
         public int CommunicationRating { get; set; }
 
-        [Range(1, 5)]
+        [Required(ErrorMessage = "La calificación de check-in es requerida")]
+        [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
         public int CheckInRating { get; set; }
 
-        [Range(1, 5)]
+        [Required(ErrorMessage = "La calificación de precisión es requerida")]
+        [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
         public int AccuracyRating { get; set; }
 
-        [Range(1, 5)]
+        [Required(ErrorMessage = "La calificación de ubicación es requerida")]
+        [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
         public int LocationRating { get; set; }
 
-        [Range(1, 5)]
+        [Required(ErrorMessage = "La calificación de valor es requerida")]
+        [Range(1, 5, ErrorMessage = "La calificación debe estar entre 1 y 5")]
         public int ValueRating { get; set; }
 
-        [Required]
         public DateTime CreatedDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
 
         public bool IsApproved { get; set; }
 
-        // Relaciones
         [ForeignKey("ApartmentId")]
-        [DeleteBehavior(DeleteBehavior.Restrict)]
-        public virtual Apartment Apartment { get; set; } = null!;
+        public virtual Apartment? Apartment { get; set; }
 
         [ForeignKey("UserId")]
-        [DeleteBehavior(DeleteBehavior.Restrict)]
-        public virtual User Reviewer { get; set; } = null!;
-
-        public Review()
-        {
-            CreatedDate = DateTime.UtcNow;
-        }
+        public virtual User? Reviewer { get; set; }
     }
 }

@@ -1,8 +1,81 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<ProyectoMLHOMP.Models.Apartment>
+
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4">
+    <!-- Banner o Hero Section -->
+    <div class="jumbotron text-center bg-light p-5 rounded-3 mb-4">
+        <h1 class="display-4">Encuentra tu hogar ideal</h1>
+        <p class="lead">Descubre los mejores apartamentos disponibles para tu estancia.</p>
+    </div>
+
+    <!-- Sección de Apartamentos -->
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var apartment in Model.Where(a => a.IsAvailable))
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Imagen del apartamento (placeholder por ahora) -->
+                        <img src="/api/placeholder/400/200" class="card-img-top" alt="@apartment.Title"
+                             style="height: 200px; object-fit: cover;">
+
+                        <div class="card-body">
+                            <h5 class="card-title">@apartment.Title</h5>
+                            <p class="card-text text-muted">
+                                <i class="fas fa-map-marker-alt"></i> @apartment.City, @apartment.Country
+                            </p>
+                            <p class="card-text" style="height: 50px; overflow: hidden;">
+                                @(apartment.Description?.Length > 100
+                                    ? apartment.Description.Substring(0, 97) + "..."
+                                    : apartment.Description)
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-bed"></i> @apartment.Bedrooms
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-bath"></i> @apartment.Bathrooms
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-users"></i> @apartment.MaxOccupancy
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="text-primary mb-0">$@apartment.PricePerNight <small class="text-muted">/noche</small></h5>
+                                <a asp-controller="Apartments" asp-action="Details" asp-route-id="@apartment.ApartmentId"
+                                   class="btn btn-outline-primary">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                <h3>No hay apartamentos disponibles en este momento</h3>
+                <p class="text-muted">¡Vuelve a consultar más tarde!</p>
+            </div>
+        }
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+}
