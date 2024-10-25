@@ -7,42 +7,50 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoMLHOMP.Controllers
 {
+    // Requiere que el usuario esté autenticado para acceder a cualquier acción del controlador
     [Authorize]
     public class ApartmentsController : Controller
     {
+        // Variables privadas para el contexto de la base de datos y el logger
         private readonly ProyectoContext _context;
         private readonly ILogger<ApartmentsController> _logger;
 
+        // Constructor para inicializar el contexto y el logger
         public ApartmentsController(ProyectoContext context, ILogger<ApartmentsController> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        // Método auxiliar para obtener el ID del usuario de forma segura
+        // Método auxiliar para obtener el ID del usuario autenticado de forma segura
         private int GetCurrentUserId()
         {
+            // Obtener el ID del usuario desde los claims
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
+                // Lanzar excepción si el ID no es válido o el usuario no está autenticado
                 throw new UnauthorizedAccessException("Usuario no autenticado o ID de usuario inválido");
             }
             return userId;
         }
 
-        // GET: Apartments
+        // Acción para mostrar la lista de apartamentos (GET: Apartments)
         public async Task<IActionResult> Index()
         {
             try
             {
+                // Obtener el ID del usuario actual y verificar si es un "Host"
                 var userId = GetCurrentUserId();
                 var userIsHost = User.IsInRole("Host");
 
+                // Pasar datos al ViewData para que estén disponibles en la vista
                 ViewData["CurrentUserId"] = userId;
                 ViewData["IsHost"] = userIsHost;
 
                 if (userIsHost)
                 {
+                    // Si es un "Host", mostrar solo los apartamentos del usuario actual
                     return View(await _context.Apartment
                         .Include(a => a.Owner)
                         .Where(a => a.UserId == userId)
@@ -50,6 +58,7 @@ namespace ProyectoMLHOMP.Controllers
                 }
                 else
                 {
+                    // Si no es un "Host", mostrar solo los apartamentos disponibles
                     return View(await _context.Apartment
                         .Include(a => a.Owner)
                         .Where(a => a.IsAvailable)
@@ -58,11 +67,12 @@ namespace ProyectoMLHOMP.Controllers
             }
             catch (UnauthorizedAccessException)
             {
+                // Redirigir al login si ocurre un problema de autenticación
                 return RedirectToAction("Login", "Users");
             }
         }
 
-        // GET: Apartments/Details/5
+        // Acción para mostrar los detalles de un apartamento específico (GET: Apartments/Details/5)
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -70,6 +80,7 @@ namespace ProyectoMLHOMP.Controllers
                 return NotFound();
             }
 
+            // Buscar el apartamento por ID e incluir detalles del dueño, reservas y reseñas
             var apartment = await _context.Apartment
                 .Include(a => a.Owner)
                 .Include(a => a.Bookings)
@@ -83,6 +94,7 @@ namespace ProyectoMLHOMP.Controllers
 
             try
             {
+                // Verificar si el usuario actual es el dueño del apartamento
                 var userId = GetCurrentUserId();
                 ViewBag.IsOwner = apartment.UserId == userId;
             }
@@ -94,14 +106,14 @@ namespace ProyectoMLHOMP.Controllers
             return View(apartment);
         }
 
-        // GET: Apartments/Create
+        // Acción para mostrar el formulario de creación de un nuevo apartamento (GET: Apartments/Create)
         [Authorize(Roles = "Host")]
         public IActionResult Create()
         {
             return View(new Apartment());
         }
 
-        // POST: Apartments/Create
+        // Acción para crear un nuevo apartamento (POST: Apartments/Create)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Host")]
@@ -111,6 +123,7 @@ namespace ProyectoMLHOMP.Controllers
             {
                 try
                 {
+                    // Asignar propiedades adicionales antes de guardar
                     apartment.UserId = GetCurrentUserId();
                     apartment.CreatedAt = DateTime.UtcNow;
                     apartment.IsAvailable = true;
@@ -125,6 +138,7 @@ namespace ProyectoMLHOMP.Controllers
                 }
                 catch (Exception ex)
                 {
+                    // Manejo de errores y logeo
                     _logger.LogError(ex, "Error al crear apartamento");
                     ModelState.AddModelError("", "Ocurrió un error al crear el apartamento");
                 }
@@ -132,7 +146,7 @@ namespace ProyectoMLHOMP.Controllers
             return View(apartment);
         }
 
-        // GET: Apartments/Edit/5
+        // Acción para mostrar el formulario de edición de un apartamento existente (GET: Apartments/Edit/5)
         [Authorize(Roles = "Host")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -150,6 +164,7 @@ namespace ProyectoMLHOMP.Controllers
             try
             {
                 var userId = GetCurrentUserId();
+                // Verificar que el usuario sea el dueño del apartamento antes de permitir la edición
                 if (apartment.UserId != userId)
                 {
                     return Forbid();
@@ -163,7 +178,7 @@ namespace ProyectoMLHOMP.Controllers
             return View(apartment);
         }
 
-        // POST: Apartments/Edit/5
+        // Acción para editar un apartamento existente (POST: Apartments/Edit/5)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Host")]
@@ -187,6 +202,7 @@ namespace ProyectoMLHOMP.Controllers
 
                 if (ModelState.IsValid)
                 {
+                    // Asignar datos antes de actualizar el registro
                     apartment.UserId = userId;
                     apartment.UpdatedAt = DateTime.UtcNow;
                     apartment.CreatedAt = originalApartment.CreatedAt;
@@ -212,7 +228,7 @@ namespace ProyectoMLHOMP.Controllers
             return View(apartment);
         }
 
-        // GET: Apartments/Delete/5
+        // Acción para mostrar la confirmación de eliminación de un apartamento (GET: Apartments/Delete/5)
         [Authorize(Roles = "Host")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -246,7 +262,7 @@ namespace ProyectoMLHOMP.Controllers
             return View(apartment);
         }
 
-        // POST: Apartments/Delete/5
+        // Acción para eliminar un apartamento (POST: Apartments/Delete/5)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Host")]
@@ -277,11 +293,13 @@ namespace ProyectoMLHOMP.Controllers
             }
         }
 
+        // Método auxiliar para verificar si existe un apartamento con el ID dado
         private bool ApartmentExists(int id)
         {
             return _context.Apartment.Any(e => e.ApartmentId == id);
         }
 
+        // Método auxiliar para comprobar si el usuario actual es el dueño de un apartamento
         private async Task<bool> IsApartmentOwner(int apartmentId)
         {
             try
