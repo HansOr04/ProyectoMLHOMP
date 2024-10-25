@@ -5,9 +5,26 @@
     ViewData["Title"] = Model.Title;
     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     var isOwner = userId != null && Model.UserId == int.Parse(userId);
+    var userBookings = Model.Bookings?.Where(b => b.UserId.ToString() == userId).ToList();
 }
 
 <div class="container mt-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="row">
         <!-- Detalles del Apartamento -->
         <div class="col-md-8">
@@ -16,9 +33,14 @@
                     <h2 class="h4 mb-0">@Model.Title</h2>
                     @if (isOwner)
                     {
-                        <a asp-action="Edit" asp-route-id="@Model.ApartmentId" class="btn btn-light btn-sm">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.ApartmentId" class="btn btn-light btn-sm me-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.ApartmentId" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
                     }
                 </div>
                 <div class="card-body">
@@ -41,13 +63,119 @@
                     </div>
 
                     <div class="alert alert-info">
-                        <h4 class="alert-heading">Precio por noche: $@Model.PricePerNight</h4>
-                        <p class="mb-0">Estado: @(Model.IsAvailable ? "Disponible" : "No disponible")</p>
+                        <h4 class="alert-heading">Precio por noche: $@Model.PricePerNight.ToString("F2")</h4>
+                        <p class="mb-0">
+                            Estado:
+                            @if (Model.IsAvailable)
+                            {
+                                <span class="badge bg-success">Disponible</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">No disponible</span>
+                            }
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Sección de Comentarios -->
+            <!-- Sección de Reservas - Solo visible para dueño o huéspedes que han reservado -->
+            @if (isOwner || (userBookings != null && userBookings.Any()))
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0">
+                            <i class="fas fa-calendar-check"></i>
+                            @(isOwner ? "Reservas del Apartamento" : "Tus Reservas")
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        @if (isOwner)
+                                        {
+                                            <th>Huésped</th>
+                                        }
+                                        <th>Llegada</th>
+                                        <th>Salida</th>
+                                        <th>Huéspedes</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var bookingsToShow = isOwner ? Model.Bookings : userBookings;
+                                    }
+                                    @if (bookingsToShow != null)
+                                    {
+                                        @foreach (var booking in bookingsToShow.OrderByDescending(b => b.StartDate))
+                                        {
+                                            <tr>
+                                                @if (isOwner)
+                                                {
+                                                    <td>@booking.Guest?.Username</td>
+                                                }
+                                                <td>@booking.StartDate.ToString("dd/MM/yyyy")</td>
+                                                <td>@booking.EndDate.ToString("dd/MM/yyyy")</td>
+                                                <td>@booking.NumberOfGuests</td>
+                                                <td>$@booking.TotalPrice.ToString("F2")</td>
+                                                <td>
+                                                    @{
+                                                        var today = DateTime.Today;
+                                                        string status;
+                                                        string statusClass;
+
+                                                        if (booking.EndDate < today)
+                                                        {
+                                                            status = "Completada";
+                                                            statusClass = "success";
+                                                        }
+                                                        else if (booking.StartDate > today)
+                                                        {
+                                                            status = "Próxima";
+                                                            statusClass = "primary";
+                                                        }
+                                                        else
+                                                        {
+                                                            status = "En curso";
+                                                            statusClass = "warning";
+                                                        }
+                                                    }
+                                                    <span class="badge bg-@statusClass">@status</span>
+                                                </td>
+                                                <td>
+                                                    @if (booking.StartDate > DateTime.Today.AddDays(2))
+                                                    {
+                                                        <div class="btn-group">
+                                                            <a asp-controller="Bookings"
+                                                               asp-action="Edit"
+                                                               asp-route-id="@booking.BookingId"
+                                                               class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a asp-controller="Bookings"
+                                                               asp-action="Delete"
+                                                               asp-route-id="@booking.BookingId"
+                                                               class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-times"></i>
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <!-- Sección de Reseñas -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
@@ -93,10 +221,11 @@
                     }
                 </div>
             </div>
+        </div>
 
         <!-- Sección de Reserva -->
         <div class="col-md-4">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
                 <div class="card-header bg-success text-white">
                     <h3 class="h5 mb-0"><i class="fas fa-calendar-alt"></i> Realizar Reserva</h3>
                 </div>
@@ -105,21 +234,24 @@
                     {
                         if (Model.IsAvailable && !isOwner)
                         {
-                            <a asp-controller="Bookings" asp-action="Create"
-                               asp-route-apartmentId="@Model.ApartmentId"
+                            <a asp-controller="Bookings"
+                               asp-action="Create"
+                               asp-route-id="@Model.ApartmentId"
                                class="btn btn-success btn-lg w-100">
-                                Reservar Ahora
+                                <i class="fas fa-book"></i> Reservar Ahora
                             </a>
                         }
                         else if (isOwner)
                         {
                             <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
                                 No puedes reservar tu propio apartamento
                             </div>
                         }
                         else
                         {
                             <div class="alert alert-danger">
+                                <i class="fas fa-ban"></i>
                                 Este apartamento no está disponible
                             </div>
                         }
@@ -127,7 +259,9 @@
                     else
                     {
                         <div class="alert alert-info">
-                            <a asp-controller="Users" asp-action="Login"
+                            <i class="fas fa-info-circle"></i>
+                            <a asp-controller="Users"
+                               asp-action="Login"
                                asp-route-returnUrl="@Url.Action("Details", "Apartments", new { id = Model.ApartmentId })">
                                 Inicia sesión para reservar
                             </a>
@@ -141,8 +275,14 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Aquí puedes añadir JavaScript adicional si lo necesitas
-        });
+        $(document).ready(function () {
+            // Auto ocultar alertas después de 5 segundos
+            setTimeout(function() {
+                    $('.alert-success, .alert-danger').fadeOut('slow');
+                    }, 5000);
+
+                    // Tooltip para los iconos
+                    $('[data-bs-toggle="tooltip"]').tooltip();
+                });
     </script>
 }
