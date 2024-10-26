@@ -1,7 +1,6 @@
 ﻿@using System.Security.Claims
 @using ProyectoMLHOMP.Models
 @model IEnumerable<ProyectoMLHOMP.Models.Apartment>
-
 @{
     ViewData["Title"] = "Departamentos";
     var isHost = (bool)ViewData["IsHost"];
@@ -9,47 +8,95 @@
 }
 
 <div class="container mt-4">
-    <h1>@ViewData["Title"]</h1>
-
-    @if (isHost)
-    {
-        <p>
-            <a asp-action="Create" class="btn btn-primary">Crear Nuevo Departamento</a>
-        </p>
-    }
-
-    <div class="row">
-        @foreach (var item in Model)
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@ViewData["Title"]</h1>
+        @if (isHost)
         {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Title</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">@item.City, @item.Country</h6>
-                        <p class="card-text">@item.Description</p>
-                        <p class="card-text">
-                            <small class="text-muted">
-                                @item.Bedrooms habitaciones | @item.Bathrooms baños
-                                <br>
-                                Máximo @item.MaxOccupancy personas
-                            </small>
-                        </p>
-                        <p class="card-text"><strong>$@item.PricePerNight por noche</strong></p>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Crear Nuevo Departamento
+            </a>
+        }
+    </div>
 
-                        <div class="btn-group">
-                            <a asp-action="Details" asp-route-id="@item.ApartmentId" class="btn btn-info">Detalles</a>
-                            @if (isHost && item.UserId == currentUserId)
-                            {
-                                <a asp-action="Edit" asp-route-id="@item.ApartmentId" class="btn btn-warning">Editar</a>
-                                <a asp-action="Delete" asp-route-id="@item.ApartmentId" class="btn btn-danger">Eliminar</a>
-                            }
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            @if (isHost)
+            {
+                <h4 class="alert-heading">¡Aún no tienes departamentos registrados!</h4>
+                <p>Comienza a publicar tus propiedades haciendo clic en el botón "Crear Nuevo Departamento".</p>
+            }
+            else
+            {
+                <h4 class="alert-heading">No hay departamentos disponibles en este momento</h4>
+                <p>Por favor, vuelve a consultar más tarde.</p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <i class="bi bi-geo-alt"></i> @item.City, @item.Country
+                            </h6>
+                            <p class="card-text">@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="bi bi-people"></i> Máx. @item.MaxOccupancy personas</span>
+                                <span class="badge bg-primary">$@item.PricePerNight/noche</span>
+                            </div>
+                            <div class="text-muted small mb-3">
+                                <i class="bi bi-door-closed"></i> @item.Bedrooms habitaciones
+                                <span class="mx-2">|</span>
+                                <i class="bi bi-droplet"></i> @item.Bathrooms baños
+                            </div>
+                            <div class="btn-group w-100">
+                                <a asp-action="Details" asp-route-id="@item.ApartmentId"
+                                   class="btn btn-outline-primary">
+                                    <i class="bi bi-info-circle"></i> Detalles
+                                </a>
+                                @if (isHost && item.UserId == currentUserId)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.ApartmentId"
+                                       class="btn btn-outline-warning">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.ApartmentId"
+                                       class="btn btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </a>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .card {
+            transition: transform 0.2s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .badge {
+            font-size: 1em;
+            padding: 8px 12px;
+        }
+    </style>
+}
 
 @section Scripts {
     @{

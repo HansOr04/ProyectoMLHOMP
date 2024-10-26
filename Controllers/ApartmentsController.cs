@@ -7,113 +7,120 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoMLHOMP.Controllers
 {
-    // Requiere que el usuario esté autenticado para acceder a cualquier acción del controlador
     [Authorize]
     public class ApartmentsController : Controller
     {
-        // Variables privadas para el contexto de la base de datos y el logger
         private readonly ProyectoContext _context;
         private readonly ILogger<ApartmentsController> _logger;
 
-        // Constructor para inicializar el contexto y el logger
         public ApartmentsController(ProyectoContext context, ILogger<ApartmentsController> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        // Método auxiliar para obtener el ID del usuario autenticado de forma segura
         private int GetCurrentUserId()
         {
-            // Obtener el ID del usuario desde los claims
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                // Lanzar excepción si el ID no es válido o el usuario no está autenticado
                 throw new UnauthorizedAccessException("Usuario no autenticado o ID de usuario inválido");
             }
             return userId;
         }
 
-        // Acción para mostrar la lista de apartamentos (GET: Apartments)
+        // GET: Apartments
         public async Task<IActionResult> Index()
         {
             try
             {
-                // Obtener el ID del usuario actual y verificar si es un "Host"
                 var userId = GetCurrentUserId();
                 var userIsHost = User.IsInRole("Host");
 
-                // Pasar datos al ViewData para que estén disponibles en la vista
                 ViewData["CurrentUserId"] = userId;
                 ViewData["IsHost"] = userIsHost;
 
-                if (userIsHost)
-                {
-                    // Si es un "Host", mostrar solo los apartamentos del usuario actual
-                    return View(await _context.Apartment
+                var apartments = userIsHost
+                    ? await _context.Apartment
                         .Include(a => a.Owner)
                         .Where(a => a.UserId == userId)
-                        .ToListAsync());
-                }
-                else
-                {
-                    // Si no es un "Host", mostrar solo los apartamentos disponibles
-                    return View(await _context.Apartment
+                        .OrderByDescending(a => a.CreatedAt)
+                        .ToListAsync()
+                    : await _context.Apartment
                         .Include(a => a.Owner)
                         .Where(a => a.IsAvailable)
-                        .ToListAsync());
+                        .OrderByDescending(a => a.CreatedAt)
+                        .ToListAsync();
+
+                if (userIsHost && !apartments.Any())
+                {
+                    TempData["Info"] = "No tienes departamentos registrados. ¡Comienza a publicar ahora!";
                 }
+
+                return View(apartments);
             }
             catch (UnauthorizedAccessException)
             {
-                // Redirigir al login si ocurre un problema de autenticación
                 return RedirectToAction("Login", "Users");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar los apartamentos");
+                TempData["Error"] = "Ocurrió un error al cargar los departamentos";
+                return View(new List<Apartment>());
             }
         }
 
-        // Acción para mostrar los detalles de un apartamento específico (GET: Apartments/Details/5)
+        // GET: Apartments/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
-                return NotFound();
-            }
-
-            // Buscar el apartamento por ID e incluir detalles del dueño, reservas y reseñas
-            var apartment = await _context.Apartment
-                .Include(a => a.Owner)
-                .Include(a => a.Bookings)
-                .Include(a => a.Reviews)
-                .FirstOrDefaultAsync(m => m.ApartmentId == id);
-
-            if (apartment == null)
-            {
-                return NotFound();
+                TempData["Error"] = "ID de departamento no especificado";
+                return RedirectToAction(nameof(Index));
             }
 
             try
             {
-                // Verificar si el usuario actual es el dueño del apartamento
+                var apartment = await _context.Apartment
+                    .Include(a => a.Owner)
+                    .Include(a => a.Bookings)
+                    .Include(a => a.Reviews)
+                        .ThenInclude(r => r.Reviewer)
+                    .FirstOrDefaultAsync(m => m.ApartmentId == id);
+
+                if (apartment == null)
+                {
+                    TempData["Error"] = "Departamento no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var userId = GetCurrentUserId();
                 ViewBag.IsOwner = apartment.UserId == userId;
+                ViewBag.CurrentUserId = userId;
+
+                return View(apartment);
             }
             catch (UnauthorizedAccessException)
             {
-                ViewBag.IsOwner = false;
+                return RedirectToAction("Login", "Users");
             }
-
-            return View(apartment);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cargar los detalles del departamento {id}");
+                TempData["Error"] = "Error al cargar los detalles del departamento";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        // Acción para mostrar el formulario de creación de un nuevo apartamento (GET: Apartments/Create)
+        // GET: Apartments/Create
         [Authorize(Roles = "Host")]
         public IActionResult Create()
         {
             return View(new Apartment());
         }
 
-        // Acción para crear un nuevo apartamento (POST: Apartments/Create)
+        // POST: Apartments/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Host")]
@@ -123,13 +130,13 @@ namespace ProyectoMLHOMP.Controllers
             {
                 try
                 {
-                    // Asignar propiedades adicionales antes de guardar
                     apartment.UserId = GetCurrentUserId();
                     apartment.CreatedAt = DateTime.UtcNow;
                     apartment.IsAvailable = true;
 
                     _context.Add(apartment);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Departamento creado exitosamente";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (UnauthorizedAccessException)
@@ -138,47 +145,56 @@ namespace ProyectoMLHOMP.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Manejo de errores y logeo
                     _logger.LogError(ex, "Error al crear apartamento");
-                    ModelState.AddModelError("", "Ocurrió un error al crear el apartamento");
+                    ModelState.AddModelError("", "Ocurrió un error al crear el departamento");
+                    TempData["Error"] = "Error al crear el departamento";
                 }
             }
             return View(apartment);
         }
 
-        // Acción para mostrar el formulario de edición de un apartamento existente (GET: Apartments/Edit/5)
+        // GET: Apartments/Edit/5
         [Authorize(Roles = "Host")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
-                return NotFound();
-            }
-
-            var apartment = await _context.Apartment.FindAsync(id);
-            if (apartment == null)
-            {
-                return NotFound();
+                TempData["Error"] = "ID de departamento no especificado";
+                return RedirectToAction(nameof(Index));
             }
 
             try
             {
+                var apartment = await _context.Apartment.FindAsync(id);
+                if (apartment == null)
+                {
+                    TempData["Error"] = "Departamento no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var userId = GetCurrentUserId();
-                // Verificar que el usuario sea el dueño del apartamento antes de permitir la edición
                 if (apartment.UserId != userId)
                 {
-                    return Forbid();
+                    _logger.LogWarning($"Usuario {userId} intentó editar un departamento que no le pertenece: {id}");
+                    TempData["Error"] = "No tienes permiso para editar este departamento";
+                    return RedirectToAction(nameof(Index));
                 }
+
+                return View(apartment);
             }
             catch (UnauthorizedAccessException)
             {
                 return RedirectToAction("Login", "Users");
             }
-
-            return View(apartment);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cargar el formulario de edición para el departamento {id}");
+                TempData["Error"] = "Error al cargar el formulario de edición";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        // Acción para editar un apartamento existente (POST: Apartments/Edit/5)
+        // POST: Apartments/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Host")]
@@ -186,7 +202,8 @@ namespace ProyectoMLHOMP.Controllers
         {
             if (id != apartment.ApartmentId)
             {
-                return NotFound();
+                TempData["Error"] = "ID de departamento no coincide";
+                return RedirectToAction(nameof(Index));
             }
 
             try
@@ -195,20 +212,28 @@ namespace ProyectoMLHOMP.Controllers
                 var originalApartment = await _context.Apartment.AsNoTracking()
                     .FirstOrDefaultAsync(a => a.ApartmentId == id);
 
-                if (originalApartment?.UserId != userId)
+                if (originalApartment == null)
                 {
-                    return Forbid();
+                    TempData["Error"] = "Departamento no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (originalApartment.UserId != userId)
+                {
+                    _logger.LogWarning($"Usuario {userId} intentó editar un departamento que no le pertenece: {id}");
+                    TempData["Error"] = "No tienes permiso para editar este departamento";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 if (ModelState.IsValid)
                 {
-                    // Asignar datos antes de actualizar el registro
                     apartment.UserId = userId;
                     apartment.UpdatedAt = DateTime.UtcNow;
                     apartment.CreatedAt = originalApartment.CreatedAt;
 
                     _context.Update(apartment);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Departamento actualizado exitosamente";
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -216,53 +241,78 @@ namespace ProyectoMLHOMP.Controllers
             {
                 return RedirectToAction("Login", "Users");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!ApartmentExists(apartment.ApartmentId))
                 {
-                    return NotFound();
+                    TempData["Error"] = "Departamento no encontrado";
+                    return RedirectToAction(nameof(Index));
                 }
-                throw;
+                _logger.LogError(ex, $"Error de concurrencia al actualizar el departamento {id}");
+                TempData["Error"] = "Error al actualizar el departamento. Por favor, intente nuevamente.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al actualizar el departamento {id}");
+                TempData["Error"] = "Error al actualizar el departamento";
             }
 
             return View(apartment);
         }
 
-        // Acción para mostrar la confirmación de eliminación de un apartamento (GET: Apartments/Delete/5)
+        // GET: Apartments/Delete/5
         [Authorize(Roles = "Host")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
-                return NotFound();
-            }
-
-            var apartment = await _context.Apartment
-                .Include(a => a.Owner)
-                .FirstOrDefaultAsync(m => m.ApartmentId == id);
-
-            if (apartment == null)
-            {
-                return NotFound();
+                TempData["Error"] = "ID de departamento no especificado";
+                return RedirectToAction(nameof(Index));
             }
 
             try
             {
+                var apartment = await _context.Apartment
+                    .Include(a => a.Owner)
+                    .Include(a => a.Bookings)
+                    .FirstOrDefaultAsync(m => m.ApartmentId == id);
+
+                if (apartment == null)
+                {
+                    TempData["Error"] = "Departamento no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var userId = GetCurrentUserId();
                 if (apartment.UserId != userId)
                 {
-                    return Forbid();
+                    _logger.LogWarning($"Usuario {userId} intentó eliminar un departamento que no le pertenece: {id}");
+                    TempData["Error"] = "No tienes permiso para eliminar este departamento";
+                    return RedirectToAction(nameof(Index));
                 }
+
+                // Verificar si hay reservas futuras
+                if (apartment.Bookings?.Any(b => b.StartDate > DateTime.Today) ?? false)
+                {
+                    TempData["Error"] = "No se puede eliminar el departamento porque tiene reservas futuras";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(apartment);
             }
             catch (UnauthorizedAccessException)
             {
                 return RedirectToAction("Login", "Users");
             }
-
-            return View(apartment);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al cargar la vista de eliminación para el departamento {id}");
+                TempData["Error"] = "Error al cargar la vista de eliminación";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        // Acción para eliminar un apartamento (POST: Apartments/Delete/5)
+        // POST: Apartments/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Host")]
@@ -271,35 +321,51 @@ namespace ProyectoMLHOMP.Controllers
             try
             {
                 var userId = GetCurrentUserId();
-                var apartment = await _context.Apartment.FindAsync(id);
+                var apartment = await _context.Apartment
+                    .Include(a => a.Bookings)
+                    .FirstOrDefaultAsync(a => a.ApartmentId == id);
 
                 if (apartment == null)
                 {
-                    return NotFound();
+                    TempData["Error"] = "Departamento no encontrado";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 if (apartment.UserId != userId)
                 {
-                    return Forbid();
+                    _logger.LogWarning($"Usuario {userId} intentó eliminar un departamento que no le pertenece: {id}");
+                    TempData["Error"] = "No tienes permiso para eliminar este departamento";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (apartment.Bookings?.Any(b => b.StartDate > DateTime.Today) ?? false)
+                {
+                    TempData["Error"] = "No se puede eliminar el departamento porque tiene reservas futuras";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 _context.Apartment.Remove(apartment);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                TempData["Success"] = "Departamento eliminado exitosamente";
             }
             catch (UnauthorizedAccessException)
             {
                 return RedirectToAction("Login", "Users");
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al eliminar el departamento {id}");
+                TempData["Error"] = "Error al eliminar el departamento";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
-        // Método auxiliar para verificar si existe un apartamento con el ID dado
         private bool ApartmentExists(int id)
         {
             return _context.Apartment.Any(e => e.ApartmentId == id);
         }
 
-        // Método auxiliar para comprobar si el usuario actual es el dueño de un apartamento
         private async Task<bool> IsApartmentOwner(int apartmentId)
         {
             try
