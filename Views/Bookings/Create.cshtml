@@ -12,13 +12,18 @@
     <div class="row">
         <div class="col-md-8">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white p-3">
                     <h3 class="card-title mb-0">Reservar Apartamento</h3>
                 </div>
                 <div class="card-body">
                     @if (apartment != null)
                     {
                         <div class="mb-4">
+                            <div class="price-section d-flex align-items-baseline mb-3">
+                                <h2 class="mb-0 me-2">$@apartment.PricePerNight</h2>
+                                <p class="text-muted mb-0">por noche</p>
+                            </div>
+
                             <h4>@apartment.Title</h4>
                             <p class="text-muted">
                                 <i class="fas fa-map-marker-alt"></i> @apartment.City, @apartment.Country
@@ -34,9 +39,6 @@
                                     <i class="fas fa-users"></i> Máx. @apartment.MaxOccupancy personas
                                 </div>
                             </div>
-                            <p class="mb-2">
-                                <strong>Precio por noche:</strong> $@apartment.PricePerNight
-                            </p>
                         </div>
 
                         <form asp-action="Create" method="post">
@@ -45,66 +47,85 @@
                             <input type="hidden" asp-for="ApartmentId" value="@apartment.ApartmentId" />
                             <input type="hidden" asp-for="TotalPrice" id="hiddenTotalPrice" />
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label asp-for="StartDate" class="form-label">Fecha de llegada</label>
-                                    <input asp-for="StartDate" class="form-control" type="date"
-                                           min="@minStartDate"
-                                           max="@maxStartDate"
-                                           required
-                                           onchange="updateTotalPrice()" />
-                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                            <div class="dates-container border rounded overflow-hidden mb-4">
+                                <div class="row g-0">
+                                    <div class="col-6 border-end">
+                                        <div class="p-3 bg-light">
+                                            <label asp-for="StartDate" class="form-label mb-1">CHECK IN</label>
+                                            <input asp-for="StartDate" class="form-control border-0 bg-light"
+                                                   type="date" min="@minStartDate" max="@maxStartDate"
+                                                   required onchange="updateTotalPrice()" />
+                                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3 bg-light">
+                                            <label asp-for="EndDate" class="form-label mb-1">CHECK OUT</label>
+                                            <input asp-for="EndDate" class="form-control border-0 bg-light"
+                                                   type="date" min="@minStartDate" required
+                                                   onchange="updateTotalPrice()" />
+                                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label asp-for="EndDate" class="form-label">Fecha de salida</label>
-                                    <input asp-for="EndDate" class="form-control" type="date"
-                                           min="@minStartDate"
-                                           required
-                                           onchange="updateTotalPrice()" />
-                                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                                <div class="border-top p-3 bg-light">
+                                    <label asp-for="NumberOfGuests" class="form-label mb-1">Huéspedes</label>
+                                    <select asp-for="NumberOfGuests" class="form-select border-0 bg-light">
+                                        @for (int i = 1; i <= maxGuests; i++)
+                                        {
+                                            <option value="@i">@i @(i == 1 ? "huésped" : "huéspedes")</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="NumberOfGuests" class="text-danger"></span>
+                                    <small class="form-text text-muted d-block mt-1">
+                                        Capacidad máxima: @maxGuests personas
+                                    </small>
                                 </div>
                             </div>
 
-                            <div class="mb-4">
-                                <label asp-for="NumberOfGuests" class="form-label">Número de huéspedes</label>
-                                <select asp-for="NumberOfGuests" class="form-select">
-                                    @for (int i = 1; i <= maxGuests; i++)
-                                    {
-                                        <option value="@i">@i @(i == 1 ? "huésped" : "huéspedes")</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="NumberOfGuests" class="text-danger"></span>
-                                <small class="form-text text-muted">
-                                    Capacidad máxima: @maxGuests personas
-                                </small>
+                            <div class="cancellation-policy mb-4">
+                                <h5 class="mb-3">Políticas de cancelación</h5>
+                                <div class="border rounded overflow-hidden">
+                                    <div class="p-3 border-bottom">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="cancellationPolicy" id="noRefund" checked>
+                                            <label class="form-check-label" for="noRefund">Sin reembolso</label>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="cancellationPolicy" id="withRefund">
+                                            <label class="form-check-label" for="withRefund">Con reembolso</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="alert alert-info mb-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="alert-heading mb-0">Resumen de precios:</h5>
+                            <div class="price-summary border rounded p-3 mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0">Resumen de precios:</h5>
                                     <span id="nightsCount" class="text-muted"></span>
                                 </div>
                                 <hr>
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex justify-content-between mb-2">
                                     <span>Precio por noche:</span>
                                     <span>$@pricePerNight</span>
                                 </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <strong>Total a pagar:</strong>
+                                <div class="d-flex justify-content-between pt-2 border-top">
+                                    <strong>Total sin impuestos:</strong>
                                     <strong id="totalPrice">Selecciona las fechas</strong>
                                 </div>
                             </div>
 
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-check-circle"></i> Confirmar Reserva
+                                <button type="submit" class="btn btn-warning btn-lg fw-bold">
+                                    Reservar
                                 </button>
                                 <a asp-controller="Apartments"
                                    asp-action="Details"
                                    asp-route-id="@apartment.ApartmentId"
                                    class="btn btn-outline-secondary">
-                                    <i class="fas fa-times-circle"></i> Cancelar
+                                    Cancelar
                                 </a>
                             </div>
                         </form>
@@ -159,6 +180,30 @@
     </div>
 </div>
 
+<style>
+    .dates-container {
+        border: 2px solid #575757 !important;
+    }
+
+        .dates-container .form-control,
+        .dates-container .form-select {
+            background-color: #e4e4e4 !important;
+        }
+
+    .btn-warning {
+        background-color: #e1aa20 !important;
+        border-color: #e1aa20 !important;
+    }
+
+    .price-summary {
+        border-color: #575757 !important;
+    }
+
+    .cancellation-policy .border {
+        border-color: #575757 !important;
+    }
+</style>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -181,19 +226,16 @@
                 nightsCountElement.textContent = `${nights} ${nights === 1 ? 'noche' : 'noches'}`;
                 hiddenTotalPriceInput.value = totalPrice;
 
-                // Habilitar el botón de envío
                 document.querySelector('button[type="submit"]').disabled = false;
             } else {
                 totalPriceElement.textContent = 'Selecciona las fechas';
                 nightsCountElement.textContent = '';
                 hiddenTotalPriceInput.value = '';
 
-                // Deshabilitar el botón de envío
                 document.querySelector('button[type="submit"]').disabled = true;
             }
         }
 
-        // Actualizar precio cuando cambian las fechas
         document.getElementById('StartDate').addEventListener('change', function () {
             const endDateInput = document.getElementById('EndDate');
             endDateInput.min = this.value;
@@ -205,9 +247,7 @@
 
         document.getElementById('EndDate').addEventListener('change', updateTotalPrice);
 
-        // Calcular precio inicial si hay fechas seleccionadas
         document.addEventListener('DOMContentLoaded', function () {
-            // Deshabilitar el botón de envío inicialmente
             document.querySelector('button[type="submit"]').disabled = true;
             updateTotalPrice();
         });
