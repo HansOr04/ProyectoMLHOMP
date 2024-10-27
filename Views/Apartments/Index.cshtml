@@ -40,21 +40,46 @@
             {
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
+                        <!-- Imagen del departamento -->
+                        <div class="card-img-wrapper">
+                            <img src="@item.ImageUrl"
+                                 class="card-img-top apartment-image"
+                                 alt="@item.Title"
+                                 onerror="this.src='/images/apartments/default-apartment.jpg';" />
+                            @if (!item.IsAvailable)
+                            {
+                                <div class="availability-badge">
+                                    <span class="badge bg-danger">No Disponible</span>
+                                </div>
+                            }
+                        </div>
+
                         <div class="card-body">
                             <h5 class="card-title">@item.Title</h5>
                             <h6 class="card-subtitle mb-2 text-muted">
                                 <i class="bi bi-geo-alt"></i> @item.City, @item.Country
                             </h6>
-                            <p class="card-text">@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span><i class="bi bi-people"></i> Máx. @item.MaxOccupancy personas</span>
+                            <p class="card-text description">@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
+
+                            <div class="apartment-details">
+                                <div class="feature">
+                                    <i class="bi bi-people"></i>
+                                    <span>@item.MaxOccupancy personas</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="bi bi-door-closed"></i>
+                                    <span>@item.Bedrooms hab.</span>
+                                </div>
+                                <div class="feature">
+                                    <i class="bi bi-droplet"></i>
+                                    <span>@item.Bathrooms baños</span>
+                                </div>
+                            </div>
+
+                            <div class="price-badge mt-2 mb-3">
                                 <span class="badge bg-primary">$@item.PricePerNight/noche</span>
                             </div>
-                            <div class="text-muted small mb-3">
-                                <i class="bi bi-door-closed"></i> @item.Bedrooms habitaciones
-                                <span class="mx-2">|</span>
-                                <i class="bi bi-droplet"></i> @item.Bathrooms baños
-                            </div>
+
                             <div class="btn-group w-100">
                                 <a asp-action="Details" asp-route-id="@item.ApartmentId"
                                    class="btn btn-outline-primary">
@@ -85,15 +110,105 @@
     <style>
         .card {
             transition: transform 0.2s;
+            overflow: hidden;
+            border: none;
         }
 
             .card:hover {
                 transform: translateY(-5px);
             }
 
+        .card-img-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .apartment-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .apartment-image {
+            transform: scale(1.05);
+        }
+
+        .availability-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+        }
+
         .badge {
-            font-size: 1em;
+            font-size: 0.9em;
             padding: 8px 12px;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            height: 3em;
+            overflow: hidden;
+        }
+
+        .apartment-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .feature {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .feature i {
+                color: #0d6efd;
+            }
+
+        .price-badge {
+            text-align: right;
+        }
+
+        .btn-group {
+            margin-top: auto;
+        }
+
+            .btn-group .btn {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+        @@media (max-width: 768px) {
+            .col-md-4 {
+                margin-bottom: 1.5rem;
+            }
+
+            .card-img-wrapper {
+                height: 180px;
+            }
+
+            .apartment-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 }
@@ -102,4 +217,15 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        $(document).ready(function () {
+            // Manejar errores de carga de imagen
+            $('.apartment-image').on('error', function () {
+                $(this).attr('src', '/images/apartments/default-apartment.jpg');
+            });
+
+            // Tooltip para los botones
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
 }

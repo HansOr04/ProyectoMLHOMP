@@ -99,6 +99,23 @@ namespace ProyectoMLHOMP.Models
         public int MaxOccupancy { get; set; }
 
         /// <summary>
+        /// URL de la imagen principal del apartamento
+        /// Si no se proporciona una imagen, se usa una imagen por defecto
+        /// </summary>
+        [Required(ErrorMessage = "La imagen principal es requerida")]
+        [Display(Name = "Imagen Principal")]
+        public string ImageUrl { get; set; } = "/images/apartments/default-apartment.jpg";
+
+        /// <summary>
+        /// Archivo de imagen temporal para procesar la carga de imágenes
+        /// No se almacena en la base de datos
+        /// </summary>
+        [NotMapped]
+        [Display(Name = "Imagen del Departamento")]
+        [Required(ErrorMessage = "Debe seleccionar una imagen")]
+        public IFormFile? ImageFile { get; set; }
+
+        /// <summary>
         /// Indica si el apartamento está disponible para reservas
         /// Permite al propietario desactivar temporalmente las reservas
         /// </summary>
@@ -142,5 +159,18 @@ namespace ProyectoMLHOMP.Models
         /// Permite acceder a las valoraciones y comentarios de los huéspedes
         /// </summary>
         public virtual ICollection<Review>? Reviews { get; set; } = new List<Review>();
+
+        /// <summary>
+        /// Constructor por defecto
+        /// Inicializa las colecciones y establece valores por defecto
+        /// </summary>
+        public Apartment()
+        {
+            Bookings = new List<Booking>();
+            Reviews = new List<Review>();
+            CreatedAt = DateTime.UtcNow;
+            IsAvailable = true;
+            ImageUrl = "/images/apartments/default-apartment.jpg";
+        }
     }
 }

@@ -52,6 +52,11 @@ namespace ProyectoMLHOMP.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
@@ -306,7 +311,7 @@ namespace ProyectoMLHOMP.Migrations
                     b.HasOne("ProyectoMLHOMP.Models.Apartment", "Apartment")
                         .WithMany("Reviews")
                         .HasForeignKey("ApartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProyectoMLHOMP.Models.User", "Reviewer")
