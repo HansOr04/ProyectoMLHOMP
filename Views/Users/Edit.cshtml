@@ -146,7 +146,7 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Mostrar/ocultar información de host
             function toggleHostInfo() {
                 if ($('#isHostSwitch').is(':checked')) {
@@ -163,10 +163,10 @@
             $('#isHostSwitch').change(toggleHostInfo);
 
             // Vista previa de imagen
-            $("#profileImage").change(function () {
+            $("#profileImage").change(function() {
                 if (this.files && this.files[0]) {
                     var reader = new FileReader();
-                    reader.onload = function (e) {
+                    reader.onload = function(e) {
                         $('img.rounded-circle').attr('src', e.target.result);
                     }
                     reader.readAsDataURL(this.files[0]);
@@ -174,10 +174,10 @@
             });
 
             // Confirmar cambio de modo host
-            $('#isHostSwitch').change(function () {
+            $('#isHostSwitch').change(function() {
                 if ($(this).is(':checked')) {
                     if (!confirm('¿Estás seguro de que deseas activar el modo anfitrión? ' +
-                        'Esto te permitirá publicar propiedades en la plataforma.')) {
+                               'Esto te permitirá publicar propiedades en la plataforma.')) {
                         $(this).prop('checked', false);
                         toggleHostInfo();
                     }

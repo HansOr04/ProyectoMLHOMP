@@ -140,9 +140,9 @@
     }
     <script>
         // Script para mostrar estrellas en los selects
-        $(document).ready(function () {
-            $('select').each(function () {
-                $(this).on('change', function () {
+        $(document).ready(function() {
+            $('select').each(function() {
+                $(this).on('change', function() {
                     var stars = '★'.repeat($(this).val()) + '☆'.repeat(5 - $(this).val());
                     $(this).next('.stars').text(stars);
                 });
