@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ProyectoMLHOMP.Migrations
 {
     [DbContext(typeof(ProyectoContext))]
-    [Migration("20241027173215_NewDB")]
-    partial class NewDB
+    [Migration("20241028123746_Database")]
+    partial class Database
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
